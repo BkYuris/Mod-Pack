@@ -19,20 +19,20 @@ import Sys;
 
 using StringTools;
 
-class FlxVideoAndroid extends FlxSprite
+class WebmPlayerS extends FlxSprite
 {
 	public var videoplayer:WebmPlayer;
 	public var endcallback:Void->Void = null;
 	public var startcallback:Void->Void = null;
 	public var sound:FlxSound;
-        public var soundMultiplier:Float = 1;
-        public var prevSoundMultiplier:Float = 1;
-        public var videoFrames:Int = 0;
-        public var doShit:Bool = false;
-        public var io:WebmIo;
-        public var altSource:String;
+    public var soundMultiplier:Float = 1;
+    public var prevSoundMultiplier:Float = 1;
+    public var videoFrames:Int = 0;
+    public var doShit:Bool = false;
+    public var io:WebmIo;
+    public var altSource:String;
     
-        public var stopped:Bool = false;
+    public var stopped:Bool = false;
 	public var restarted:Bool = false;
 	public var started:Bool = false;
 	public var ended:Bool = false;
@@ -40,36 +40,35 @@ class FlxVideoAndroid extends FlxSprite
 	
 	public var useSound:Bool = false;
 	
-        public function new(source:String, ownCamera:Bool = false, frameSkipLimit:Int = -1, okX:Float = null, okY:Float = null, okWidth:Float = null, okHeight:Float = null) 
-        {
-    	       x = 0;
-               y = 0;
+	public function new(source:String, ownCamera:Bool = false, frameSkipLimit:Int = -1, okX:Float = null, okY:Float = null, okWidth:Float = null, okHeight:Float = null) 
+    {
+    	x = 0;
+        y = 0;
 
-    	       if (okX != null) {
-        	   x = okX;
-               }
-               if (okY != null) {
-        	   y = okY;
-               }
-               if (okWidth != null) {
-        	   width = okWidth;
-               }
-               if (okHeight != null) {
-        	   height = okHeight;
-               }
+    	if (okX != null) {
+        	x = okX;
+        }
+        if (okY != null) {
+        	y = okY;
+        }
+        if (okWidth != null) {
+        	width = okWidth;
+        }
+        if (okHeight != null) {
+        	height = okHeight;
+        }
 
-                super(x, y);
+        super(x, y);
         
-                altSource = source;
+        altSource = source;
         
-                useSound = FileSystem.exists(altSource.replace(".webm", ".txt")) && FileSystem.exists(altSource.replace(".webm", ".ogg"));
+        useSound = FileSystem.exists(altSource.replace(".webm", ".txt")) && FileSystem.exists(altSource.replace(".webm", ".ogg"));
         
-                if (useSound) 
-                {
-                    videoFrames = Std.parseInt(File.getContent(altSource.replace(".webm", ".txt")));
-                }
+        if (useSound) {
+            videoFrames = Std.parseInt(File.getContent(altSource.replace(".webm", ".txt")));
+        }
         
-                io = new WebmIoFile(getThing(altSource));
+        io = new WebmIoFile(getThing(altSource));
 		videoplayer = new WebmPlayer();
 		videoplayer.fuck(io, false);
 		videoplayer.addEventListener(WebmEvent.PLAY, function(e) {
@@ -103,23 +102,29 @@ class FlxVideoAndroid extends FlxSprite
 		    doShit = true;
 		}
         
-                if (frameSkipLimit != -1)
+        if (frameSkipLimit != -1)
 		{
-			videoplayer.SKIP_STEP_LIMIT = frameSkipLimit;	
+			
 		}
 		
 		if (ownCamera) {
 		    var cam = new FlxCamera();
-	            FlxG.cameras.add(cam);
+	        FlxG.cameras.add(cam);
 		    cam.bgColor.alpha = 0;
 		    cameras = [cam];
 		}
-        }
+    }
     
-        public function getThing(source:String)
-        {
-                return source;
-        }
+    public function getThing(source:String)
+    {
+    	#if mobile
+        return source;
+        #elseif desktop
+        return Sys.getCwd() + source;
+        #else
+        return null;
+        #end
+    }
 	
 	public function play():Void
 	{
@@ -175,7 +180,7 @@ class FlxVideoAndroid extends FlxSprite
 		
 		if (useSound)
 		{
-			var wasFuckingHit = videoplayer.wasHitOnce;
+			
 			soundMultiplier = videoplayer.renderedCount / videoFrames;
 			
 			if (soundMultiplier > 1)
@@ -192,7 +197,6 @@ class FlxVideoAndroid extends FlxSprite
 				if (sound.time >= (sound.length * soundMultiplier) + compareShit || sound.time <= (sound.length * soundMultiplier) - compareShit)
 					sound.time = sound.length * soundMultiplier;
 			}
-			if (wasFuckingHit)
 			{
 			if (soundMultiplier == 0)
 			{
